@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f7f5" />
+  <title>今天去哪？</title>
+  <style>
+    :root{
+      --bg:#f7f7f5;
+      --card:#ffffff;
+      --text:#232323;
+      --muted:#7a7a76;
+      --line:#e8e8e4;
+      --soft:#f0f0ec;
+      --shadow:0 12px 35px rgba(0,0,0,.06);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+    body{display:flex;justify-content:center}
+    button,input{font:inherit}
+    button{-webkit-tap-highlight-color:transparent}
+    .app{width:min(100%,520px);min-height:100svh;padding:20px 18px 34px;display:flex;flex-direction:column}
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 18px}
+    .brand{font-size:14px;letter-spacing:.08em;color:var(--muted)}
+    .progress{display:flex;gap:6px}
+    .dot{width:7px;height:7px;border-radius:50%;background:#ddd}
+    .dot.active{background:#555}
+    .stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center}
+    .screen{display:none;width:100%;animation:fade .32s ease both}
+    .screen.active{display:block}
+    @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .hero{text-align:center;padding:24px 8px}
+    h1{font-size:34px;line-height:1.22;margin:0 0 12px;letter-spacing:-.03em}
+    h2{font-size:28px;line-height:1.25;margin:0 0 8px;letter-spacing:-.025em}
+    p{margin:0;color:var(--muted);line-height:1.65}
+    .small{font-size:13px}
+    .spacer{height:24px}
+    .btns{display:grid;gap:12px;margin-top:28px}
+    .btn{border:1px solid var(--line);background:var(--card);color:var(--text);padding:16px 18px;border-radius:18px;cursor:pointer;box-shadow:0 5px 18px rgba(0,0,0,.035);transition:.2s ease}
+    .btn:active{transform:scale(.985)}
+    .btn.primary{background:#222;color:white;border-color:#222;font-weight:700}
+    .btn.primary.grow{transform:scale(1.055)}
+    .no-zone{position:relative;height:62px}
+    #noBtn{position:absolute;left:0;right:0;margin:auto;width:100%;transition:transform .22s ease,opacity .22s ease,width .22s ease}
+    .date-card,.summary{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+    .date-input{width:100%;border:1px solid var(--line);background:#fafaf8;border-radius:16px;padding:16px;margin-top:14px;color:var(--text)}
+    .grid{display:grid;gap:11px;margin-top:22px}
+    .choice{width:100%;text-align:left;border:1px solid var(--line);background:var(--card);padding:16px;border-radius:19px;cursor:pointer;transition:.18s ease}
+    .choice:hover{transform:translateY(-1px)}
+    .choice.selected{border-color:#777;box-shadow:0 0 0 2px rgba(0,0,0,.05);background:#fafaf8}
+    .choice{position:relative;padding-right:48px}
+    .choice::after{content:'+';position:absolute;right:16px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:#999;font-size:17px}
+    .choice.selected::after{content:'✓';background:#222;color:white;border-color:#222;font-size:14px}
+    #vibeGrid .choice::after{content:'';width:14px;height:14px}
+    #vibeGrid .choice.selected::after{content:'';background:#222}
+    .choice .title{font-weight:720;font-size:17px}
+    .choice .desc{margin-top:5px;font-size:13px;color:var(--muted);line-height:1.45}
+    .continue{margin-top:18px;width:100%}
+    .summary-row{padding:13px 0;border-bottom:1px solid var(--line)}
+    .summary-row:last-child{border-bottom:0}
+    .label{font-size:12px;color:var(--muted);margin-bottom:5px}
+    .value{font-size:18px;font-weight:700}
+    .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#222;color:white;padding:11px 15px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.2s}
+    .toast.show{opacity:1}
+    .celebrate{font-size:48px;margin-bottom:10px;animation:pop .55s ease both}
+    @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+    .tiny-note{margin-top:18px;font-size:12px;color:#9a9a95}
+    .hidden{display:none!important}
+    @media (max-width:380px){
+      h1{font-size:30px} h2{font-size:25px}
+      .app{padding-left:14px;padding-right:14px}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="brand">今天去哪？</div>
+      <div class="progress" aria-label="進度">
+        <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+    </div>
+
+    <section class="stage">
+      <div class="screen active" data-screen="0">
+        <div class="hero">
+          <h1>找一天一起出去晃晃？ 👀</h1>
+          <p>這次讓妳選。</p>
+          <div class="btns">
+            <button class="btn primary" id="yesBtn">可以啊 😎</button>
+            <div class="no-zone">
+              <button class="btn" id="noBtn">不要</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen" data-screen="1">
+        <h2>那妳哪天有空？</h2>
+        <p>挑一個方便的日子就好。</p>
+        <div class="spacer"></div>
+        <div class="date-card">
+          <div class="label">日期</div>
+          <input id="dateInput" class="date-input" type="date" />
+        </div>
+        <button class="btn primary continue" id="dateNext" disabled>下一步 →</button>
+      </div>
+
+      <div class="screen" data-screen="2">
+        <h2>這次想去哪裡？</h2>
+        <p>想去哪裡都可以選，複選沒問題。</p>
+        <div class="grid" id="activityGrid">
+          <button class="choice" data-value="🍰 甜點">
+            <div class="title">🍰 甜點</div><div class="desc">找一家厲害的甜點店。</div>
+          </button>
+          <button class="choice" data-value="🖼️ 美術館">
+            <div class="title">🖼️ 美術館</div><div class="desc">慢慢晃、慢慢看、順便聊天。</div>
+          </button>
+          <button class="choice" data-value="🌃 夜景">
+            <div class="title">🌃 夜景</div><div class="desc">找個漂亮的地方吹吹風。</div>
+          </button>
+          <button class="choice" data-value="🚲 大稻埕河堤騎腳踏車">
+            <div class="title">🚲 大稻埕河堤騎腳踏車｜晚上限定</div><div class="desc">晚上沿著河堤騎一圈，吹風、看夜景、慢慢晃。</div>
+          </button>
+          <button class="choice" data-value="🌷 逛花市">
+            <div class="title">🌷 逛花市｜早上限定</div><div class="desc">早上去看看花、隨便晃，搞不好還能挑一盆回家。</div>
+          </button>
+          <button class="choice" data-value="🍸 Gay Bar">
+            <div class="title">🍸 Gay Bar</div><div class="desc">安全感有、氣氛有，順便一起看帥哥 😂</div>
+          </button>
+          <button class="choice" data-value="🎬 看電影">
+            <div class="title">🎬 看電影</div><div class="desc">挑一部想看的，看完再一起吐槽 😂</div>
+          </button>
+          <button class="choice" data-value="🎲 妳決定">
+            <div class="title">🎲 妳決定</div><div class="desc">妳選地方，我負責跟上。</div>
+          </button>
+        </div>
+        <div id="flowerNote" class="tiny-note hidden" style="margin-top:14px;font-size:13px">🌷 花市這個要排早上喔～</div>
+        <div id="bikeNote" class="tiny-note hidden" style="margin-top:8px;font-size:13px">🚲 大稻埕河堤騎腳踏車要排晚上喔～</div>
+        <button class="btn primary continue" id="activityNext" disabled>選好了 →</button>
+      </div>
+
+      <div class="screen" data-screen="3">
+        <h2>那今天想走哪種路線？</h2>
+        <p>沒有標準答案，選妳現在最想要的。</p>
+        <div class="grid" id="vibeGrid">
+          <button class="choice" data-value="輕鬆亂晃"><div class="title">輕鬆亂晃</div></button>
+          <button class="choice" data-value="好好聊天"><div class="title">好好聊天</div></button>
+          <button class="choice" data-value="吃到好吃的最重要"><div class="title">吃到好吃的最重要</div></button>
+          <button class="choice" data-value="有一點氣氛"><div class="title">有一點氣氛</div></button>
+          <button class="choice" data-value="你安排就好"><div class="title">你安排就好 😏</div></button>
+        </div>
+        <button class="btn primary continue" id="vibeNext" disabled>看結果 →</button>
+      </div>
+
+      <div class="screen" data-screen="4">
+        <h2>好，計畫成立。</h2>
+        <p>那剩下的就交給我。</p>
+        <div class="spacer"></div>
+        <div class="summary">
+          <div class="summary-row"><div class="label">📅 日期</div><div class="value" id="sumDate">—</div></div>
+          <div class="summary-row"><div class="label">📍 想去哪些地方</div><div class="value" id="sumActivity">—</div></div>
+          <div class="summary-row"><div class="label">✨ 今日模式</div><div class="value" id="sumVibe">—</div></div>
+        </div>
+        <button class="btn primary continue" id="dealBtn">成交 🤝</button>
+      </div>
+
+      <div class="screen" data-screen="5">
+        <div class="hero">
+          <div class="celebrate">✨</div>
+          <h1>好，那就說好了。</h1>
+          <p>妳負責出現，剩下交給我 😎</p>
+          <div class="btns">
+            <button class="btn primary" id="shareBtn">分享結果</button>
+            <button class="btn" id="copyBtn">複製結果</button>
+          </div>
+          <div class="tiny-note">希望這次沒有店休 😂</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">已複製</div>
+
+  <script>
+    const screens = [...document.querySelectorAll('.screen')];
+    const dots = [...document.querySelectorAll('.dot')];
+    const state = { date:'', activities:[], vibe:'' };
+    let current = 0;
+
+    function go(n){
+      screens.forEach(s => s.classList.remove('active'));
+      const target = document.querySelector(`[data-screen="${n}"]`);
+      if(target) target.classList.add('active');
+      current = n;
+      dots.forEach((d,i)=>d.classList.toggle('active', i <= Math.min(n,4)));
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // Date minimum = browser's local today
+    const dateInput = document.getElementById('dateInput');
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth()+1).padStart(2,'0');
+    const dd = String(today.getDate()).padStart(2,'0');
+    dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const noTexts = ['妳確定？ 🤨','再想一下啦 😂','真的不出去喔？','好啦只能選可以'];
+    let noCount = 0;
+
+    function dodgeNo(e){
+      if(e) e.preventDefault();
+      if(noCount < noTexts.length){
+        noBtn.textContent = noTexts[noCount];
+        const dx = (noCount % 2 === 0 ? 1 : -1) * Math.min(90, 28 + noCount*18);
+        const dy = (noCount % 3 - 1) * 7;
+        noBtn.style.transform = `translate(${dx}px, ${dy}px)`;
+        noCount++;
+        yesBtn.classList.add('grow');
+      } else {
+        noBtn.style.opacity = '0';
+        noBtn.style.width = '35%';
+        noBtn.style.pointerEvents = 'none';
+        yesBtn.classList.add('grow');
+      }
+    }
+    noBtn.addEventListener('mouseenter', dodgeNo);
+    noBtn.addEventListener('touchstart', dodgeNo, {passive:false});
+    noBtn.addEventListener('click', dodgeNo);
+
+    yesBtn.addEventListener('click', ()=>{
+      yesBtn.textContent = '我就知道 😏';
+      setTimeout(()=>go(1), 450);
+    });
+
+    dateInput.addEventListener('input', ()=>{
+      state.date = dateInput.value;
+      document.getElementById('dateNext').disabled = !state.date;
+    });
+    document.getElementById('dateNext').addEventListener('click', ()=>go(2));
+
+    // 行程可複選
+    const activityGrid = document.getElementById('activityGrid');
+    activityGrid.addEventListener('click', e=>{
+      const btn = e.target.closest('.choice');
+      if(!btn) return;
+
+      btn.classList.toggle('selected');
+      const value = btn.dataset.value;
+
+      if(btn.classList.contains('selected')){
+        if(!state.activities.includes(value)) state.activities.push(value);
+      }else{
+        state.activities = state.activities.filter(v => v !== value);
+      }
+
+      document.getElementById('activityNext').disabled = state.activities.length === 0;
+
+      const flowerSelected = state.activities.includes('🌷 逛花市');
+      const flowerNote = document.getElementById('flowerNote');
+      if(flowerNote) flowerNote.classList.toggle('hidden', !flowerSelected);
+
+      const bikeSelected = state.activities.includes('🚲 大稻埕河堤騎腳踏車');
+      const bikeNote = document.getElementById('bikeNote');
+      if(bikeNote) bikeNote.classList.toggle('hidden', !bikeSelected);
+    });
+
+    // 今日模式維持單選
+    function singleSelect(containerId, key, nextId){
+      const container = document.getElementById(containerId);
+      container.addEventListener('click', e=>{
+        const btn = e.target.closest('.choice');
+        if(!btn) return;
+        container.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));
+        btn.classList.add('selected');
+        state[key] = btn.dataset.value;
+        document.getElementById(nextId).disabled = false;
+      });
+    }
+    singleSelect('vibeGrid','vibe','vibeNext');
+
+    document.getElementById('activityNext').addEventListener('click', ()=>go(3));
+    document.getElementById('vibeNext').addEventListener('click', ()=>{
+      document.getElementById('sumDate').textContent = formatDate(state.date);
+      document.getElementById('sumActivity').textContent =
+        state.activities.join('、')
+        + (state.activities.includes('🌷 逛花市') ? '（花市要早上）' : '')
+        + (state.activities.includes('🚲 大稻埕河堤騎腳踏車') ? '（河堤騎車要晚上）' : '');
+      document.getElementById('sumVibe').textContent = state.vibe;
+      go(4);
+    });
+    document.getElementById('dealBtn').addEventListener('click', ()=>go(5));
+
+    function formatDate(v){
+      if(!v) return '—';
+      const [y,m,d] = v.split('-').map(Number);
+      return `${y} 年 ${m} 月 ${d} 日`;
+    }
+
+    function resultText(){
+      return `今天去哪？\n\n📅 日期：${formatDate(state.date)}\n📍 想去哪：${state.activities.join('、')}${state.activities.includes('🌷 逛花市') ? '（花市要早上）' : ''}${state.activities.includes('🚲 大稻埕河堤騎腳踏車') ? '（河堤騎車要晚上）' : ''}\n✨ 今日模式：${state.vibe}\n\n好，那就說好了 😎`;
+    }
+
+    const toast = document.getElementById('toast');
+    function showToast(msg='已複製'){
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'),1500);
+    }
+
+    document.getElementById('copyBtn').addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(resultText());
+        showToast('已複製結果');
+      }catch{
+        const ta = document.createElement('textarea');
+        ta.value = resultText();
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        showToast('已複製結果');
+      }
+    });
+
+    document.getElementById('shareBtn').addEventListener('click', async ()=>{
+      if(navigator.share){
+        try{
+          await navigator.share({title:'今天去哪？', text:resultText()});
+        }catch{}
+      }else{
+        try{
+          await navigator.clipboard.writeText(resultText());
+          showToast('裝置不支援直接分享，已幫你複製');
+        }catch{
+          showToast('請使用「複製結果」');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
