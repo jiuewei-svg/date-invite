@@ -122,9 +122,6 @@
           <button class="choice" data-value="🌃 夜景">
             <div class="title">🌃 夜景</div><div class="desc">找個漂亮的地方吹吹風。</div>
           </button>
-          <button class="choice" data-value="🚲 大稻埕河堤騎腳踏車">
-            <div class="title">🚲 大稻埕河堤騎腳踏車｜晚上限定</div><div class="desc">晚上沿著河堤騎一圈，吹風、看夜景、慢慢晃。</div>
-          </button>
           <button class="choice" data-value="🌷 逛花市">
             <div class="title">🌷 逛花市｜早上限定</div><div class="desc">早上去看看花、隨便晃，搞不好還能挑一盆回家。</div>
           </button>
@@ -139,7 +136,6 @@
           </button>
         </div>
         <div id="flowerNote" class="tiny-note hidden" style="margin-top:14px;font-size:13px">🌷 花市這個要排早上喔～</div>
-        <div id="bikeNote" class="tiny-note hidden" style="margin-top:8px;font-size:13px">🚲 大稻埕河堤騎腳踏車要排晚上喔～</div>
         <button class="btn primary continue" id="activityNext" disabled>選好了 →</button>
       </div>
 
@@ -265,9 +261,6 @@
       const flowerNote = document.getElementById('flowerNote');
       if(flowerNote) flowerNote.classList.toggle('hidden', !flowerSelected);
 
-      const bikeSelected = state.activities.includes('🚲 大稻埕河堤騎腳踏車');
-      const bikeNote = document.getElementById('bikeNote');
-      if(bikeNote) bikeNote.classList.toggle('hidden', !bikeSelected);
     });
 
     // 今日模式維持單選
@@ -289,8 +282,7 @@
       document.getElementById('sumDate').textContent = formatDate(state.date);
       document.getElementById('sumActivity').textContent =
         state.activities.join('、')
-        + (state.activities.includes('🌷 逛花市') ? '（花市要早上）' : '')
-        + (state.activities.includes('🚲 大稻埕河堤騎腳踏車') ? '（河堤騎車要晚上）' : '');
+        + (state.activities.includes('🌷 逛花市') ? '（花市要早上）' : '');
       document.getElementById('sumVibe').textContent = state.vibe;
       go(4);
     });
@@ -303,7 +295,7 @@
     }
 
     function resultText(){
-      return `今天去哪？\n\n📅 日期：${formatDate(state.date)}\n📍 想去哪：${state.activities.join('、')}${state.activities.includes('🌷 逛花市') ? '（花市要早上）' : ''}${state.activities.includes('🚲 大稻埕河堤騎腳踏車') ? '（河堤騎車要晚上）' : ''}\n✨ 今日模式：${state.vibe}\n\n好，那就說好了 😎`;
+      return `今天去哪？\n\n📅 日期：${formatDate(state.date)}\n📍 想去哪：${state.activities.join('、')}${state.activities.includes('🌷 逛花市') ? '（花市要早上）' : ''}\n✨ 今日模式：${state.vibe}\n\n好，那就說好了 😎`;
     }
 
     const toast = document.getElementById('toast');
